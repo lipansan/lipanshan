@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+<style>
+	body {
+		margin: 0;
+	}
+</style>
+<script src="js/digit.js"></script>
+</head>
+<body>
+	<canvas id="mayCanvas"></canvas>
+<script>
+window.onload = function (){
+	var canvas = document.getElementById('mayCanvas');
+	canvas.width = 800;
+	canvas.height = 400;
+	var radius = 5;
+	var timer = 0;
+	var nowDate = new Date();
+	
+	var balls = [];
+	var color = ["#3345e5","#AA66CC","#9933CC","#669900","#FFBB33","#FF8800","#FF4444","#ff44AA","#ccoocc","#ffAAAA"]
+	var content = canvas.getContext("2d");
+	timer = setInterval(function (){
+		render(content);
+		upDate();
+	}, 50)
+	
+	function render(cxt){
+		
+		var hours = Add0(nowDate.getHours());
+		var minute = Add0(nowDate.getMinutes());
+		var seconds = Add0(nowDate.getSeconds());
+		cxt.clearRect(0, 0, canvas.width, canvas.height);
+		renderDigit(100,40,(Math.floor(hours/10)),cxt);
+		renderDigit(100+15*(radius+1),40,(hours%10),cxt);
+		renderDigit(100+30*(radius+1),40,10,cxt);
+		renderDigit(100+39*(radius+1),40,(Math.floor(minute/10)),cxt);
+		renderDigit(100+54*(radius+1),40,(minute%10),cxt);
+		renderDigit(100+69*(radius+1),40,10,cxt);
+		renderDigit(100+78*(radius+1),40,(Math.floor(seconds/10)),cxt);
+		renderDigit(100+93*(radius+1),40,(seconds%10),cxt);
+		for(var i=0; i<balls.length; i++){
+			cxt.beginPath();
+			cxt.fillStyle = balls[i].col;
+			cxt.arc(balls[i].x,balls[i].y,balls[i].r,0,2*Math.PI,true);
+			cxt.closePath();
+			cxt.fill();
+		}
+	}
+	function upDate(){
+		var nextTime = new Date();
+		var hours2 = Add0(nextTime.getHours());
+		var minute2 = Add0(nextTime.getMinutes());
+		var seconds2 = Add0(nextTime.getSeconds());
+		var hours = Add0(nowDate.getHours());
+		var minute = Add0(nowDate.getMinutes());
+		var seconds = Add0(nowDate.getSeconds());
+			if(parseInt(hours2/10) != parseInt(hours/10)){
+				creatBall(100,60,Math.floor(hours2/10));
+			}
+			if(parseInt(hours2%10) != parseInt(hours%10)){
+				creatBall(100+15*(radius+1),60,hours2%10);;
+			}
+			if(parseInt(minute2/10) != parseInt(minute/10)){
+				creatBall(100+39*(radius+1),60,Math.floor(minute2/10));;
+			}
+			if(parseInt(minute2%10) != parseInt(minute%10)){
+				creatBall(100+54*(radius+1),60,minute2%10);
+			}
+			if(parseInt(seconds2/10) != parseInt(seconds/10)){
+				creatBall(100+78*(radius+1),60,Math.floor(seconds2/10));
+			}
+			if(parseInt(seconds2%10) != parseInt(seconds%10)){
+				creatBall(100+93*(radius+1),60,seconds2%10);;
+			}
+			nowDate =nextTime;
+			upDateBall();
+	}
+	function upDateBall(){
+		for(var i=0; i < balls.length; i++){
+			balls[i].x += balls[i].vx;
+			balls[i].y += balls[i].vy;
+			balls[i].vy += balls[i].g;
+			if(balls[i].y+radius>canvas.height){
+				balls[i].y = canvas.height-radius;
+				balls[i].vy = - balls[i].vy*.6;
+			}
+
+		}
+		var cnt = 0;
+		for(var i=0; i< balls.length; i++){
+			if(balls[i].x+radius>0 && balls[i].x-radius <canvas.width){
+				balls[cnt++] = balls[i];
+			}
+		}
+		while(balls.length > cnt){
+			balls.pop();
+		}
+		console.log(balls.length)
+	}
+	function creatBall(x,y,num){
+		for(var i = 0; i < digit[num].length;i++)
+			for(var j = 0; j<digit[num][i].length ;j++){
+				if(digit[num][i][j] == 1){
+					var ball = {
+						x:x+j*2*(radius+1)+(radius+1),
+						y:y+i*2*(radius+1)+(radius+1),
+						r:6,
+						g:Math.random()*5,
+						vx:Math.pow(-1,Math.ceil(Math.random()*1000)),
+						vy:-2,
+						col:color[Math.floor(Math.random()*color.length)]
+					};
+					balls.push(ball);
+				}
+			}
+	}
+	function renderDigit(x,y,num,cxt){
+		for(var i = 0; i < digit[num].length; i++){
+			for(var j = 0; j < digit[num][i].length; j++){
+				if(digit[num][i][j] ==1){
+					cxt.beginPath();
+					cxt.arc(x+j*2*(radius+1)+(radius+1),y+i*2*(radius+1)+(radius+1),radius,0,2*Math.PI);
+					cxt.fillStyle = 'blue';
+					cxt.closePath();
+					cxt.fill();
+				}
+			}
+		}
+	}
+	function Add0(num){
+		return num = num>=10?''+num: '0'+num;
+	}
+};
+</script>
+</body>
+</html>
